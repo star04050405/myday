@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>day. 我的一天</title>
+<meta name="theme-color" content="#E8837F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="day.">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--paper:#FBF7F2;--card:#FFFFFF;--ink:#3A3230;--sub:#A2968C;
+--coral:#E8837F;--coral-d:#D96B66;--olive:#86A03E;--sun:#F0B356;
+--mint:#8FC7B0;--line:rgba(58,50,48,.1);--soft:#F3ECE3}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--paper);color:var(--ink);
+font-family:"Avenir Next","HarmonyOS Sans SC","PingFang SC","Noto Sans SC",sans-serif;
+line-height:1.75;padding:0 18px calc(64px + env(safe-area-inset-bottom))}
+.wrap{max-width:520px;margin:0 auto}
+/* 顶部 */
+.top{padding:26px 4px 6px;display:flex;align-items:baseline;justify-content:space-between}
+.logo{font-size:26px;font-weight:900;letter-spacing:.02em}
+.logo em{font-style:normal;color:var(--coral)}
+.datebar{font-size:11.5px;color:var(--sub);font-weight:700;letter-spacing:.06em}
+/* 进度卡 */
+.hero{background:linear-gradient(150deg,var(--coral),#DE9A8C 80%);border-radius:22px;color:#FFF9F5;
+padding:22px 22px 18px;margin-top:14px;box-shadow:0 14px 30px rgba(232,131,127,.28);position:relative;overflow:hidden}
+.hero::after{content:'✿';position:absolute;right:-14px;top:-22px;font-size:110px;opacity:.14}
+.hero .hl{font-size:12px;font-weight:800;letter-spacing:.22em;opacity:.85}
+.hero .big{font-size:52px;font-weight:900;line-height:1.15;letter-spacing:.01em}
+.hero .big span{font-size:20px;font-weight:800;opacity:.85}
+.hero .bar{height:10px;background:rgba(255,255,255,.3);border-radius:99px;margin-top:12px;overflow:hidden}
+.hero .bar i{display:block;height:100%;background:#FFF9F5;border-radius:99px;transition:width .5s cubic-bezier(.3,1.3,.5,1)}
+.hero .sub{font-size:11px;margin-top:9px;opacity:.85;font-weight:700;letter-spacing:.08em}
+/* 分段 */
+.slot-h{display:flex;align-items:center;gap:10px;margin:26px 2px 8px}
+.slot-h .sn{font-size:12px;font-weight:900;letter-spacing:.24em;color:var(--sub)}
+.slot-h .sr{flex:1;height:1px;background:var(--line)}
+/* 时间轴行 */
+.row{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);
+border-radius:16px;padding:12px 14px;margin-bottom:9px;box-shadow:0 2px 8px rgba(58,50,48,.04)}
+.row.done{background:var(--soft)}
+.row.done .nm{text-decoration:none;color:var(--sub)}
+.row .tm{font-family:"Courier New",monospace;font-size:12px;font-weight:800;color:var(--coral-d);
+min-width:44px;cursor:pointer;letter-spacing:.02em;background:var(--soft);padding:4px 6px;border-radius:8px;text-align:center}
+.row.done .tm{color:var(--sub)}
+.row .cir{width:30px;height:30px;border-radius:50%;border:2px solid var(--coral);flex-shrink:0;cursor:pointer;
+display:flex;align-items:center;justify-content:center;font-size:15px;color:transparent;transition:all .2s}
+.row.done .cir{background:var(--olive);border-color:var(--olive);color:#fff}
+.row .em{font-size:21px;flex-shrink:0}
+.row .tx{flex:1;min-width:0}
+.row .nm{font-size:14.5px;font-weight:800;letter-spacing:.02em}
+.row .ds{font-size:10.5px;color:var(--sub);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rm{font-size:16px;color:#C9BBB0;width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.row .rm:active{background:var(--soft)}
+/* 空态 */
+.empty{text-align:center;color:var(--sub);font-size:12.5px;padding:30px 0;letter-spacing:.08em}
+/* 编辑页 */
+#edit{display:none}
+.grp{margin-top:24px}
+.grp-h{display:flex;align-items:center;gap:11px;padding:4px 2px 0}
+.grp-h .gi{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.grp-h .gt{font-size:16.5px;font-weight:900}
+.grp-h .gd{font-size:10px;color:var(--sub);letter-spacing:.03em}
+.grow{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;
+padding:10px 13px;margin-top:8px}
+.grow.off{opacity:.45}
+.grow .em{font-size:19px}
+.grow .tx{flex:1;min-width:0}
+.grow .nm{font-size:13.5px;font-weight:800}
+.grow .ds{font-size:10px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gbtn{font-size:11px;font-weight:900;border-radius:99px;padding:6px 14px;border:1.5px solid var(--line);background:#fff;color:var(--sub);letter-spacing:.06em;flex-shrink:0}
+.gbtn.add{background:var(--olive);border-color:var(--olive);color:#fff}
+.gbtn.rm2{background:var(--coral);border-color:var(--coral);color:#fff}
+/* 底栏 */
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:rgba(251,247,242,.95);backdrop-filter:blur(10px);
+border-top:1px solid var(--line);display:flex;justify-content:center;gap:10px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));z-index:50}
+.tabbar button{font-size:13px;font-weight:900;color:var(--sub);background:none;border:none;padding:7px 20px;border-radius:99px;letter-spacing:.08em}
+.tabbar button.on{background:var(--ink);color:var(--paper)}
+.toast{position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(24px);
+background:var(--ink);color:var(--paper);font-size:12px;font-weight:800;padding:10px 22px;border-radius:99px;opacity:0;transition:all .3s;pointer-events:none;z-index:99;letter-spacing:.1em}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;top:-20px;font-size:22px;z-index:98;pointer-events:none;animation:fall 2.4s linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.4}}
+.timepop{position:fixed;inset:0;background:rgba(58,50,48,.4);z-index:80;display:none;align-items:center;justify-content:center}
+.timepop.on{display:flex}
+.tcard{background:#fff;border-radius:20px;padding:26px 26px 22px;text-align:center}
+.tcard h4{font-size:14px;font-weight:900;margin-bottom:14px;letter-spacing:.06em}
+.tcard input[type=time]{font-size:26px;font-weight:900;border:2px solid var(--coral);border-radius:12px;padding:8px 16px;color:var(--ink);font-family:inherit}
+.tcard .tbtns{margin-top:16px;display:flex;gap:10px;justify-content:center}
+.tcard button{font-size:13px;font-weight:900;border:none;border-radius:99px;padding:10px 24px}
+.tcard .ok{background:var(--olive);color:#fff}
+.tcard .qk{background:var(--soft);color:var(--sub)}
+.qkrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.qkrow button{font-size:11px;padding:7px 13px;background:var(--soft);color:var(--ink);border:none;border-radius:99px;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">day<em>.</em> 我的一天</div>
+    <div class="datebar" id="datebar"></div>
+  </div>
+
+  <!-- 今日 -->
+  <div id="today">
+    <div class="hero">
+      <div class="hl">TODAY · 正向生活</div>
+      <div class="big" id="bigNum">0<span> / 0</span></div>
+      <div class="bar"><i id="barFill" style="width:0%"></i></div>
+      <div class="sub" id="heroSub">今天也好好生活 ✓</div>
+    </div>
+    <div id="timeline"></div>
+  </div>
+
+  <!-- 编辑 -->
+  <div id="edit">
+    <div style="margin-top:18px;font-size:11.5px;color:var(--sub);font-weight:700;letter-spacing:.05em;line-height:1.9">
+      从习惯库里挑你的一天 —— 不要的划掉，想要的加回来。<br>时间在「今天」页点时间块就能调。</div>
+    <div id="grpHost"></div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <button class="on" id="tabToday">☀️ 今天</button>
+  <button id="tabEdit">✏️ 编辑习惯</button>
+</nav>
+<div class="toast" id="toast"></div>
+<div class="timepop" id="timepop"><div class="tcard">
+  <h4 id="tpTitle">调整时间</h4>
+  <input type="time" id="tpInput">
+  <div class="qkrow" id="tpQuick"></div>
+  <div class="tbtns"><button class="qk" id="tpCancel">取消</button><button class="ok" id="tpOk">好了</button></div>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+/* ============ 习惯库（6 组 · 据正向生活清单） ============ */
+var G=[
+ {id:"morning",t:"早起干大事",d:"清晨思维敏捷、精力充沛",e:"🌅",c:"#E8837F"},
+ {id:"home",t:"宅家日常",d:"窗明几净，建立内心秩序",e:"🏠",c:"#F0B356"},
+ {id:"work",t:"上班这件事",d:"做计划，是平息焦虑的有效方法",e:"💼",c:"#8FC7B0"},
+ {id:"body",t:"想要美好身体",d:"健康的身体状态，从小习惯开始",e:"💗",c:"#E8A0B4"},
+ {id:"write",t:"持续写作",d:"那些打动你的文字和想象力",e:"🖋",c:"#A9B7D0"},
+ {id:"care",t:"认真护理",d:"找到所有让自己容光焕发的事",e:"🪞",c:"#C9A9D6"}
+];
+var H=[
+ /* morning */
+ {id:"qichuang",g:"morning",n:"按时起床",d:"一日之计在于晨",e:"⏰",t:"07:00",on:1},
+ {id:"heshui",g:"morning",n:"早起喝杯水",d:"促进血液循环，快速唤醒身体",e:"💧",t:"07:05",on:1},
+ {id:"lashen",g:"morning",n:"做拉伸",d:"晨起3分钟，舒缓肩颈",e:"🧘",t:"07:15",on:1},
+ {id:"yundong",g:"morning",n:"早起运动",d:"用运动开启精神饱满的一天",e:"🏃",t:"07:30",on:1},
+ {id:"shuaya",g:"morning",n:"认真刷牙",d:"养成认真对待牙齿的好习惯",e:"🦷",t:"08:00",on:1},
+ {id:"zaocan",g:"morning",n:"吃营养早餐",d:"合理的早餐预防脱发与皮肤问题",e:"🍳",t:"08:10",on:1},
+ {id:"hufu",g:"morning",n:"科学护肤",d:"肌肤健康，不走弯路",e:"🧴",t:"08:30",on:1},
+ {id:"fangshai",g:"morning",n:"每日防晒",d:"抵御光老化，一年四季不能停",e:"☀️",t:"08:40",on:0},
+ {id:"chenriji",g:"morning",n:"晨间日记100天",d:"3分钟日记，生活发生奇妙变化",e:"📝",t:"08:45",on:1},
+ {id:"chenyuedu",g:"morning",n:"晨间阅读",d:"只属于你自己的小时光",e:"📖",t:"09:00",on:0},
+ {id:"zaozixi",g:"morning",n:"早自习",d:"清晨最适合学习新东西",e:"✏️",t:"09:20",on:0},
+ /* work */
+ {id:"jihua",g:"work",n:"制定今日计划",d:"做计划，是平息焦虑的有效方法",e:"🗓",t:"09:00",on:1},
+ {id:"zhanli",g:"work",n:"站立办公",d:"久坐伤身，定时站立",e:"🧍",t:"10:00",on:0},
+ {id:"heshui2",g:"work",n:"认真喝水",d:"加速新陈代谢，皮肤水润饱满",e:"🚰",t:"10:30",on:1},
+ {id:"zuozi",g:"work",n:"保持正确坐姿",d:"保护颈椎，从坐姿开始",e:"🪑",t:"11:00",on:0},
+ {id:"yanbaojian",g:"work",n:"做眼保健操",d:"眼睛是心灵的窗户",e:"👀",t:"11:30",on:1},
+ {id:"chifan",g:"work",n:"按时吃饭",d:"身体是革命的本钱",e:"🍚",t:"12:00",on:1},
+ {id:"kaqiang",g:"work",n:"饭后靠墙站立",d:"健康从饭后的小习惯开始",e:"🧱",t:"12:30",on:0},
+ {id:"xiaoshui",g:"work",n:"午间小睡",d:"小憩15-30分钟，下午更高效",e:"😴",t:"13:00",on:1},
+ {id:"wulashen",g:"work",n:"午间拉伸",d:"适当拉伸缓解身体疲劳",e:"🤸",t:"13:30",on:0},
+ {id:"ppt",g:"work",n:"PPT模拟人生100天",d:"ppt 模拟人生 100 天",e:"📊",t:"14:00",on:0},
+ {id:"qingxu",g:"work",n:"保持情绪稳定",d:"命运有耐心",e:"🙂",t:"15:00",on:0},
+ /* home */
+ {id:"__pad",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:" __pad2",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad3",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad4",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad5",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad6",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad7",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad8",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad9",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__pad10",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ /* body */
+ {id:"sanbu",g:"body",n:"散步",d:"每次散步，都是一场小小的探险",e:"🚶",t:"17:30",on:1},
+ {id:"jianfang",g:"body",n:"在家健身",d:"不去健身房也能练出好身材",e:"💪",t:"19:00",on:1},
+ {id:"paobu",g:"body",n:"跑步",d:"RUN WHILE YOU CAN",e:"👟",t:"19:30",on:0},
+ {id:"yujia",g:"body",n:"瑜伽100天",d:"拥有超模一般的优雅体态",e:"🧘‍♀️",t:"20:00",on:0},
+ {id:"fuwocheng",g:"body",n:"俯卧撑100天",d:"最简单的动作，有型的上半身",e:"💯",t:"20:20",on:0},
+ {id:"sijiao",g:"body",n:"明星私教100天",d:"像明星一样管理自己的身材",e:"👩‍🏫",t:"20:35",on:0},
+ {id:"xiaosajie",g:"body",n:"和潇洒姐塑身100天",d:"豁出去100天，召唤美好身材",e:"🔥",t:"20:50",on:0},
+ {id:"xiaosajie2",g:"body",n:"塑身100天进阶版",d:"双教练讲解，更高效燃脂塑形",e:"🔥",t:"21:05",on:0},
+ {id:"tiaowu",g:"body",n:"跳舞",d:"不如跳舞，谈恋爱不如跳舞",e:"💃",t:"21:20",on:0},
+ /* write */
+ {id:"xie500",g:"write",n:"写500字",d:"持续练习，为灵感的到来做好准备",e:"✍️",t:"21:40",on:1},
+ {id:"xiezuo",g:"write",n:"和潇洒姐写作100天",d:"开始写，写完它，在写作中学习写作",e:"🖋",t:"21:55",on:0},
+ {id:"linggan",g:"write",n:"记录今日灵感",d:"那些打动你的文字、画面和想象力",e:"💡",t:"22:05",on:0},
+ {id:"dianying",g:"write",n:"观看一部好电影",d:"去另一个世界里短暂地生活",e:"🎬",t:"20:30",on:0},
+ {id:"xinxian",g:"write",n:"尝试新鲜事物",d:"灵魂的能力应从体验中获得惊喜",e:"🎈",t:"16:30",on:0},
+ {id:"mingxiang",g:"write",n:"冥想",d:"探寻自己内心的秘境",e:"🕯",t:"22:40",on:0},
+ {id:"yuedu",g:"write",n:"阅读",d:"一座随身携带的小型避难所",e:"📚",t:"22:10",on:0},
+ /* care+home 合并展示组 */
+ {id:"xiezhuang",g:"care",n:"仔细卸妆",d:"让肌肤自由呼吸",e:"💆",t:"22:20",on:1},
+ {id:"shenTiRu",g:"care",n:"擦身体乳",d:"像对待脸一样对待身体皮肤",e:"🧴",t:"22:30",on:0},
+ {id:"meimao",g:"care",n:"美貌综合管理100天",d:"找到所有让自己容光焕发的事",e:"🪞",t:"22:15",on:0},
+ {id:"zao__shui",g:"care",n:"早睡",d:"每个人都应该好好睡觉",e:"🌙",t:"23:10",on:1},
+ {id:"jilu",g:"home",n:"记录生活",d:"任何瞬间的心动都来之不易",e:"📷",t:"16:00",on:0},
+ {id:"shouxna",g:"home",n:"空间收纳100天",d:"整理空间，是正向生活的第一步",e:"🧺",t:"19:40",on:0},
+ {id:"jiaohua",g:"home",n:"浇花",d:"期待生命绽放的小确幸",e:"🪴",t:"19:45",on:0},
+ {id:"dasao",g:"home",n:"打扫房间",d:"窗明几净，是建立内心秩序的最佳场域",e:"🧼",t:"19:50",on:0},
+ {id:"__padF",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1},
+ {id:"__padG",g:"home",n:"",d:"",e:"",t:"",on:0,hide:1}
+];
+H=H.filter(function(x){return !x.hide});
+var GNAME={};G.forEach(function(g){GNAME[g.id]=g});
+/* ============ 状态 ============ */
+var $=function(x){return document.getElementById(x)};
+var S=null;try{S=window.localStorage}catch(e){}
+function todayKey(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function load(){if(!S)return null;try{return JSON.parse(S.getItem("day1")||"null")}catch(e){return null}}
+var st=load();
+if(!st||st.day!==todayKey()){
+  st={day:todayKey(),sel:{},times:{},done:{}};
+  H.forEach(function(h){st.sel[h.id]=!!h.on;st.times[h.id]=h.t});
+}else{
+  H.forEach(function(h){ if(st.sel[h.id]===undefined)st.sel[h.id]=!!h.on; if(!st.times[h.id])st.times[h.id]=h.t});
+}
+function save(){if(S)try{S.setItem("day1",JSON.stringify(st))}catch(e){}}
+var tT;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tT);tT=setTimeout(function(){t.classList.remove("show")},1500)}
+/* ============ 今日视图 ============ */
+var WD=["日","一","二","三","四","五","六"];
+var now=new Date();
+$("datebar").textContent=(now.getMonth()+1)+"月"+now.getDate()+"日 · 星期"+WD[now.getDay()];
+function slotOf(t){var h=+t.slice(0,2);
+  if(h<9)return"MORNING · 晨光";if(h<12)return"MORNING · 上午";if(h<14)return"NOON · 午间";
+  if(h<17)return"AFTERNOON · 下午";if(h<20)return"EVENING · 傍晚";return"NIGHT · 夜晚"}
+function render(){
+  var list=H.filter(function(h){return st.sel[h.id]}).sort(function(a,b){return st.times[a.id].localeCompare(st.times[b.id])});
+  var done=0,host="",last="";
+  list.forEach(function(h){
+    if(st.done[h.id])done++;
+    var sl=slotOf(st.times[h.id]);
+    if(sl!==last){host+='<div class="slot-h"><span class="sn">'+sl+'</span><span class="sr"></span></div>';last=sl}
+    var isDone=!!st.done[h.id];
+    host+='<div class="row'+(isDone?" done":"")+'">'+
+      '<span class="tm" data-t="'+h.id+'">'+st.times[h.id]+'</span>'+
+      '<span class="cir" data-c="'+h.id+'">✓</span>'+
+      '<span class="em">'+h.e+'</span>'+
+      '<span class="tx"><span class="nm">'+h.n+'</span><span class="ds">'+h.d+'</span></span>'+
+      '<span class="rm" data-r="'+h.id+'">✕</span></div>';
+  });
+  if(!list.length)host='<div class="empty">清单空了 —— 去「编辑习惯」把想要的一天加回来</div>';
+  $("timeline").innerHTML=host;
+  var tot=list.length;
+  $("bigNum").innerHTML=done+'<span> / '+tot+'</span>';
+  $("barFill").style.width=(tot?Math.round(done/tot*100):0)+"%";
+  $("heroSub").textContent=tot===0?"去挑几件想做的事吧":(done===tot?"今天全完成了，好好生活 ✓":"还剩 "+(tot-done)+" 件，一件一件来");
+  /* 绑定 */
+  document.querySelectorAll(".row .cir").forEach(function(el){
+    el.onclick=function(){
+      var id=el.getAttribute("data-c");
+      if(st.done[id]){delete st.done[id]}
+      else{st.done[id]=1;toast("完成 ✓");burst()}
+      save();render();
+    };
+  });
+  document.querySelectorAll(".row .rm").forEach(function(el){
+    el.onclick=function(){
+      var id=el.getAttribute("data-r");
+      st.sel[id]=false;save();render();
+      var h=H.filter(function(x){return x.id===id})[0];
+      toast("已移除「"+(h?h.n:"")+"」· 可在编辑页加回");
+    };
+  });
+  document.querySelectorAll(".row .tm").forEach(function(el){
+    el.onclick=function(){openTime(el.getAttribute("data-t"))};
+  });
+}
+/* 撒花 */
+var CF=["🌸","✿","💛","🌿","⭐","🕊"];
+function burst(){
+  var all=H.filter(function(h){return st.sel[h.id]});
+  var d=0;all.forEach(function(h){if(st.done[h.id])d++});
+  if(d===all.length&&all.length>0){
+    for(var i=0;i<26;i++){
+      var s=document.createElement("div");s.className="confetti";
+      s.textContent=CF[i%CF.length];
+      s.style.left=(Math.random()*95+2)+"vw";
+      s.style.animationDelay=(Math.random()*.7)+"s";
+      document.body.appendChild(s);
+      setTimeout(function(el){return function(){el.remove()}}(s),3200);
+    }
+    setTimeout(function(){toast("今天全部完成 · 明天见 🌙")},900);
+  }
+}
+/* ============ 时间弹窗 ============ */
+var curT=null;
+function openTime(id){
+  curT=id;
+  var h=H.filter(function(x){return x.id===id})[0];
+  $("tpTitle").textContent="「"+h.n+"」几点做？";
+  $("tpInput").value=st.times[id];
+  $("tpQuick").innerHTML=["+15 分钟","+30 分钟"].map(function(m){
+    var t=st.times[id].split(":"),mi=+t[0]*60+ +t[1]+(m==="+15 分钟"?15:30);
+    var nt=('0'+Math.floor(mi/60)).slice(-2)+":"+('0'+mi%60).slice(-2);
+    return '<button data-q="'+nt+'">'+m+' → '+nt+'</button>'}).join("")+
+    '<button data-q="'+h.t+'">回到默认 '+h.t+'</button>';
+  $("tpQuick").querySelectorAll("button").forEach(function(b){
+    b.onclick=function(){$("tpInput").value=b.getAttribute("data-q")};
+  });
+  $("timepop").classList.add("on");
+}
+$("tpOk").onclick=function(){if(curT){st.times[curT]=$("tpInput").value||st.times[curT];save();render();toast("时间已调整 ✓")}$("timepop").classList.remove("on")};
+$("tpCancel").onclick=function(){$("timepop").classList.remove("on")};
+/* ============ 编辑视图 ============ */
+function renderEdit(){
+  var h="";
+  G.forEach(function(g){
+    var items=H.filter(function(x){return x.g===g.id});
+    var on=items.filter(function(x){return st.sel[x.id]}).length;
+    h+='<div class="grp"><div class="grp-h"><span class="gi" style="background:'+g.c+'22">'+g.e+'</span>'+
+    '<span><span class="gt">'+g.t+'</span><br><span class="gd">'+g.d+' · 已选 '+on+'/'+items.length+'</span></span></div>';
+    items.forEach(function(x){
+      var onx=st.sel[x.id];
+      h+='<div class="grow'+(onx?"":" off")+'"><span class="em">'+x.e+'</span>'+
+      '<span class="tx"><span class="nm">'+x.n+'</span><br><span class="ds">'+x.d+'</span></span>'+
+      '<button class="gbtn '+(onx?"rm2":"add")+'" data-g="'+x.id+'">'+(onx?"移除":"加回")+'</button></div>';
+    });
+    h+='</div>';
+  });
+  $("grpHost").innerHTML=h;
+  document.querySelectorAll(".gbtn").forEach(function(b){
+    b.onclick=function(){
+      var id=b.getAttribute("data-g");
+      st.sel[id]=!st.sel[id];save();renderEdit();render();
+      toast(st.sel[id]?"加回 ✓":"已移除");
+    };
+  });
+}
+/* ============ Tab ============ */
+$("tabToday").onclick=function(){$("today").style.display="block";$("edit").style.display="none";this.classList.add("on");$("tabEdit").classList.remove("on")};
+$("tabEdit").onclick=function(){$("today").style.display="none";$("edit").style.display="block";this.classList.add("on");$("tabToday").classList.remove("on");renderEdit()};
+render();
+})();
+</script>
+</body>
+</html>
